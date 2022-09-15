@@ -17,9 +17,9 @@ Simple bash script for monitoring current IP and WireGuard status in Xfce tray.
 ```bash
 sudo apt install xfce4-genmon-plugin
 ```
-* wget
+* pkexec (if a wireguard interface is specified using the `-w` flag
 ```bash
-sudo apt install wget
+sudo apt install policykit-1
 ```
 
 # Features
