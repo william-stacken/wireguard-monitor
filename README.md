@@ -81,9 +81,9 @@ Or alternatively, to toggle wireguard interface `wg0` up or down when the icon i
 
 | Short name | Long name | Default value | Description |
 | --- | --- | --- | --- |
-| -w | --interface       | -                 | An interface to bring up or down when the icon is clicked |
 | -n | --name       | -                 | Widget/plugin name |
-| -i | --icon       | 32                | Icon size. Founded sizes: 24 32 48 64 |
+| -w | --interface       | -                 | An interface to bring up or down when the icon is clicked |
+| -i | --icon       | 32                | Icon size. Founded sizes: 16 24 32 48 64 |
 | -f | --face       | 'JetBrains Mono'  | Font family |
 | -e | --error      | ff4400            | Error color |
 | -p | --ip         | 9dffa8            | Ip color |

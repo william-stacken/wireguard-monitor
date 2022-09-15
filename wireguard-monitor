@@ -75,6 +75,7 @@ do
         echo "wireguard-monitor commandline arguments:"
         echo -e "    Short name | Long name | Default value | Description"
         echo -e "    -n --name 10\t\tWidget/plugin name"
+        echo -e "    -w --interface \t\tAn interface to bring up or down when the icon is clicked"
         echo -e "    -i --icon ${iconSize}\t\tIcon size. Founded sizes: ${foundIconSizes}"
         echo -e "    -f --face '${fontFamily}'\tFont family"
         echo -e "    -e --error ${errorColor}\t\tError color"
