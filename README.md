@@ -1,3 +1,9 @@
+# Changes made in this fork
+- Toggle a given wireguard interface up or down using `pkexec` by clicking the xfce4-panel icon
+- Ping the VPN server to test connectivity instead of `ifconfig.me` for improved privacy.
+  (At the cost of not seeing the IP address when hovering over the xfce4-panel icon)
+- 16x16 pixel icons added.
+
 # wireguard-monitor
 
 [![Join the chat at https://gitter.im/VoidVolker/wireguard-monitor](https://badges.gitter.im/VoidVolker/wireguard-monitor.svg)](https://gitter.im/VoidVolker/wireguard-monitor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -37,7 +43,7 @@ cd ./scripts
 
 Clone repository:
 ```bash
-git clone https://github.com/VoidVolker/wireguard-monitor
+git clone https://github.com/william-stacken/wireguard-monitor
 ```
 
 Allow `wg show` command to run without password:
@@ -65,10 +71,17 @@ Go to genmon plugin properties and add next settings:
 * Command: `./scripts/wireguard-monitor/wireguard-monitor -n X`, where `X` is plugin number.
 * Period: `60`
 
+Or alternatively, to toggle wireguard interface `wg0` up or down when the icon is clicked
+(requires the user to enter their sudoers password using `pkexec`):
+
+* Command: `./scripts/wireguard-monitor/wireguard-monitor -w wg0 -n X`, where `X` is plugin number.
+* Period: `60`
+
 # Command line arguments
 
 | Short name | Long name | Default value | Description |
 | --- | --- | --- | --- |
+| -w | --interface       | -                 | An interface to bring up or down when the icon is clicked |
 | -n | --name       | -                 | Widget/plugin name |
 | -i | --icon       | 32                | Icon size. Founded sizes: 24 32 48 64 |
 | -f | --face       | 'JetBrains Mono'  | Font family |

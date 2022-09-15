@@ -9,6 +9,7 @@ endpointColor="707eff"
 handshakeColor="a164e0"
 transferColor="f1e552"
 refreshCommand=""
+interface=""
 
 # --- vars
 scriptDir=$(dirname $(realpath ${0}))
@@ -20,6 +21,11 @@ do
     case $key in
         -n|--name)
         refreshCommand="xfce4-panel --plugin-event=genmon-$2:refresh:bool:true"
+        shift # past argument
+        shift # past value
+        ;;
+        -w|--interface)
+        interface="$2"
         shift # past argument
         shift # past value
         ;;
@@ -82,49 +88,60 @@ do
     esac
 done
 
-
-# --- Icon click and text (for script start error case) click command - script restart
-result="<click>${refreshCommand}</click>"
-result+="<txtclick>${refreshCommand}</txtclick>"
-
 # --- WG state parsing
 # Get wg state
 wgState=$(sudo wg show)
-if [[ $wgState =~ ^.*endpoint:.([0-9.]+).*handshake:.(.*)transfer:.(.*)received,.(.*).*sent.*$ ]]
+if [[ -n $wgState ]]
 then
-    endpoint=${BASH_REMATCH[1]}
-    latestHandshake=${BASH_REMATCH[2]}
-    dn=${BASH_REMATCH[3]}
-    up=${BASH_REMATCH[4]}
-    wgString="\n<span face='${fontFamily}' foreground='#${endpointColor}'>Endpoint: </span>${endpoint}"
-    wgString+="\n<span face='${fontFamily}' foreground='#${handshakeColor}'>Latest handshake: </span>${latestHandshake}"
-    wgString+="\n<span face='${fontFamily}' foreground='#${transferColor}'>Transfer: </span>↓${dn}, ↑${up}"
+    if [[ $wgState =~ ^.*endpoint:.([0-9.]+).*handshake:.(.*)transfer:.(.*)received,.(.*).*sent.*$ ]]
+    then
+        endpoint=${BASH_REMATCH[1]}
+        latestHandshake=${BASH_REMATCH[2]}
+        dn=${BASH_REMATCH[3]}
+        up=${BASH_REMATCH[4]}
+        wgString="<span face='${fontFamily}' foreground='#${endpointColor}'>Endpoint: </span>${endpoint}"
+        wgString+="\n<span face='${fontFamily}' foreground='#${handshakeColor}'>Latest handshake: </span>${latestHandshake}"
+        wgString+="\n<span face='${fontFamily}' foreground='#${transferColor}'>Transfer: </span>↓${dn}, ↑${up}"
+
+        # Assume ip has been set properly
+        ip=$endpoint
+        ping -c 1 -w 1 $ip >/dev/null
+        if [[ $? -ne 0 ]]
+        then
+            iconType="na"
+            ipError="[Offline or network error]"
+            # IP string formatting:
+            ipString="\n<span face='${fontFamily}' foreground='#${errorColor}'>IP: ${ipError}</span>"
+        else
+            iconType="on"
+        fi
+    else
+        iconType="na"
+        ipError="[Not connected, restart or wait]"
+        # IP string formatting:
+        ipString="<span face='${fontFamily}' foreground='#${errorColor}'>IP: ${ipError}</span>"
+    fi
+    toggleType="down"
+else
+    wgString="<span face='${fontFamily}' foreground='#${errorColor}'>Off</span>"
+    iconType="off"
+    toggleType="up"
 fi
 
-# --- Checking real IP and compare with WG endpoint
-ip=$(wget -T 5 -q -O - https://ifconfig.me/ip)
-# ip=$(wget -T 5 -q -O - https://api.ipify.org)
-if [[ $? -ne 0 ]]
+# --- Icon click and text (for script start error case) click command - script restart
+if [[ -n "$interface" && -n "$toggleType" ]]
 then
-    iconType="na"
-    ipColor=${errorColor}
-    ipError="[Offline or network error]"
-    ip=""
+    command="bash -c \"pkexec wg-quick ${toggleType} '${interface}' 2>/dev/null; sleep 2; ${refreshCommand}\""
 else
-    # Checking if real IP is endpoint
-    if [[ $ip == $endpoint ]]
-    then
-        iconType="on"
-    else
-        iconType="off"
-    fi
+    command="${refreshCommand}"
 fi
-# IP string formatting:
-ipString="<span face='${fontFamily}' foreground='#${ipColor}'>IP: ${ipError}</span>${ip}"
+result="<click>${command}</click>"
+result+="<txtclick>${command}</txtclick>"
+
 
 # --- Setting icon and tooltip
 result+="<img>${scriptDir}/icons/wg-${iconType}-${iconSize}.png</img>"
-result+="<tool>${ipString}${wgString}</tool>"
+result+="<tool>${wgString}${ipString}</tool>"
 
 # --- Echo result
 echo -e $result
